@@ -1,0 +1,4 @@
+backend/Pipfile.lock
+backend/Pipfile
+backend/project/local_settings.py
+backend/project/__pycache__
