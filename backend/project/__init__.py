@@ -1,11 +1,11 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_marshmallow import Marshmallow
-import local_settings as settings
+import project.local_settings as settings
+
 
 pg = settings.postgrsql
-
 app = Flask(__name__)
+
 
 # Set up the database URI
 db_uri = f"postgresql://{pg['pguser']}:{pg['pgpassword']}@{pg['pghost']}:{pg['pgport']}/{pg['pgdb']}"
@@ -20,8 +20,3 @@ db = SQLAlchemy(app)
 
 # Set DEBUG mode if needed
 app.config["DEBUG"] = True
-
-
-# Start the app
-if __name__ == "__main__":
-    app.run()
