@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
 from os import environ
 
+from sqlalchemy.exc import IntegrityError
 
 app = Flask(__name__)
 import local_settings
@@ -29,38 +30,40 @@ class Patient(db.Model):
         }
 
 
-@app.route("/")
-def hello():
-    return make_response(jsonify({"message": "hello"}), 200)
-
-
 # create patient
-@app.route("/patient", methods=["POST"])
+@app.route("/add-patient", methods=["POST"])
 def create_patient():
     try:
         data = request.get_json()
         new_patient = Patient(
-            pesel=data["pesel"], name=data["name"], surrname=data["surrname"]
+            pesel=int(data["pesel"]), name=data["name"], surrname=data["surrname"]
         )
         db.session.add(new_patient)
         db.session.commit()
-        return make_response(jsonify({"message": "patient created"}), 201)
-    except Exception:
-        return make_response(jsonify({"message": "creating patient failed"}), 500)
+        return make_response(jsonify({"message": "Patient created"}), 201)
+    except IntegrityError:
+        db.session.rollback()
+        return make_response(
+            jsonify({"error": "Patient with this PESEL already exists"}), 400
+        )
+    except Exception as e:
+        db.session.rollback()
+        print("Error:", e)
+        return make_response(jsonify({"error": str(e)}), 500)
 
 
 # get patient
-@app.route("/patient/<int:id>", methods=["GET"])
-def get_patient(id):
+@app.route("/search-patient/<int:pesel>", methods=["GET"])
+def get_patient(pesel):
     try:
-        patient = Patient.query.filter_by(id=id).first()
+        patient = Patient.query.filter_by(pesel=pesel).first()
         return make_response(jsonify({"patient": patient.json()}), 200)
     except Exception:
         return make_response(jsonify({"message": "getting patient failed"}), 500)
 
 
 # update patient
-@app.route("/patient/<int:id>", methods=["PUT"])
+@app.route("/search-patient/<int:id>", methods=["PUT"])
 def update_patient(id):
     try:
         patient = Patient.query.filter_by(id=id).first()
@@ -78,7 +81,7 @@ def update_patient(id):
 
 
 # delete patient
-@app.route("/patient/<int:id>", methods=["DELETE"])
+@app.route("/search-patient/<int:id>", methods=["DELETE"])
 def delete_patient(id):
     try:
         patient = Patient.query.filter_by(id=id).first()
@@ -93,5 +96,5 @@ def delete_patient(id):
 
 with app.app_context():
     if __name__ == "__main__":
-        app.run()
+        app.run(port=8082, debug=True)
         db.create_all()

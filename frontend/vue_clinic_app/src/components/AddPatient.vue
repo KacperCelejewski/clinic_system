@@ -38,6 +38,16 @@
               >E.g., Doe</small
             >
           </div>
+          <div class="form-group mt-3" style="text-align: left">
+            <label for="pesel">PESEL</label>
+            <input
+              v-model="patient.pesel"
+              type="text"
+              class="form-control"
+              id="pesel"
+              placeholder="Enter patient's PESEL"
+            />
+          </div>
           <div class="form-group mt-3">
             <button type="submit" class="btn btn-primary btn-lg btn-block">
               Submit
@@ -62,17 +72,19 @@ export default {
   },
   methods: {
     async checkForm() {
-      if (this.patient.name && this.patient.surrname) {
+      if (this.patient.name && this.patient.surrname && this.patient.pesel) {
         try {
           // send data to the server
-          await this.$http.post("http://localhost:8080/api/patient", {
+          await this.$http.post("http://localhost:8082/add-patient", {
             name: this.patient.name,
             surrname: this.patient.surrname,
+            pesel: this.patient.pesel,
           });
 
           // reset the fields
           this.patient.name = "";
           this.patient.surrname = "";
+          this.patient.pesel = "";
 
           // set the message
           this.patient.message = "Patient added successfully";
@@ -91,6 +103,10 @@ export default {
       }
       if (!this.patient.surrname) {
         this.patient.error = "Surname is required";
+        return;
+      }
+      if (!this.patient.pesel) {
+        this.patient.error = "PESEL is required";
         return;
       }
     },
