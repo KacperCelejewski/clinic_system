@@ -35,7 +35,7 @@ def hello():
 
 
 # create patient
-@app.route("/patient", nethods=["POST"])
+@app.route("/patient", methods=["POST"])
 def create_patient():
     try:
         data = request.get_json()
