@@ -1,12 +1,12 @@
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, jsonify, make_response, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from os import environ
-
+from flask_cors import CORS
 from sqlalchemy.exc import IntegrityError
-
-app = Flask(__name__)
 import local_settings
 
+app = Flask(__name__)
+
+CORS(app)
 pg = local_settings.postgrsql
 db_uri = f"postgresql://{pg['pguser']}:{pg['pgpassword']}@{pg['pghost']}:{pg['pgport']}/{pg['pgdb']}"
 
@@ -30,6 +30,7 @@ class Patient(db.Model):
         }
 
 
+#! Limits for len of PESEL (sQL integer error)
 # create patient
 @app.route("/add-patient", methods=["POST"])
 def create_patient():
@@ -40,7 +41,9 @@ def create_patient():
         )
         db.session.add(new_patient)
         db.session.commit()
+
         return make_response(jsonify({"message": "Patient created"}), 201)
+
     except IntegrityError:
         db.session.rollback()
         return make_response(
@@ -63,10 +66,10 @@ def get_patient(pesel):
 
 
 # update patient
-@app.route("/search-patient/<int:id>", methods=["PUT"])
-def update_patient(id):
+@app.route("/search-patient/<int:pesel>/edit", methods=["PUT"])
+def update_patient(pesel):
     try:
-        patient = Patient.query.filter_by(id=id).first()
+        patient = Patient.query.filter_by(pesel=pesel).first()
         if patient:
             data = request.get_json()
 
@@ -81,7 +84,7 @@ def update_patient(id):
 
 
 # delete patient
-@app.route("/search-patient/<int:id>", methods=["DELETE"])
+@app.route("/search-patient/<int:id>/delete", methods=["DELETE"])
 def delete_patient(id):
     try:
         patient = Patient.query.filter_by(id=id).first()
@@ -96,5 +99,5 @@ def delete_patient(id):
 
 with app.app_context():
     if __name__ == "__main__":
-        app.run(port=8082, debug=True)
+        app.run(port=5000, debug=True, use_reloader=False)
         db.create_all()
