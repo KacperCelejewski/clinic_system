@@ -15,8 +15,15 @@
       <!-- Display patient data here -->
       <div v-for="patient in patients" :key="patient.id">
         <!-- Display patient information as needed -->
-        {{ patient.name }} - {{ patient.surrname }}
-        <button @click="editPatient(patient.id)">Edit</button>
+        <p>Name:{{ patient.name }}</p>
+        <p>Surrname: {{ patient.surrname }}</p>
+        <router-link
+          class="nav-link"
+          :to="{ name: 'edit', params: { pesel: patient.pesel } }"
+        >
+          Edit
+        </router-link>
+
         <button @click="deletePatient(patient.id)">Delete</button>
       </div>
     </div>
@@ -32,18 +39,32 @@ export default {
     };
   },
   methods: {
-    // ... your existing methods ...
-
     async submitForm() {
       try {
-        const response = await this.$http.get(
-          `http://localhost:8082/search-patient/${this.pesel}`
-        );
-        this.patients = response.data;
+        if (this.pesel !== undefined) {
+          const response = await this.$http.get(
+            `http://localhost:5000/search-patient/${this.pesel}`
+          );
+          this.patients = response.data;
+        } else {
+          console.error("Pesel is undefined");
+          // Handle the case where pesel is not defined
+        }
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching patient data:", error);
+        // Display an error message to the user if needed
       }
     },
+    // async editPatient() {
+    //   try {
+    //     const response = await this.$http.put(
+    //       `http://localhost:5000/search-patient/${this.pesel}`
+    //     );
+    //     this.patients = response.data;
+    //   } catch (error) {
+    //     console.error(error);
+    //   }
+    // },
 
     // ... your other methods ...
   },

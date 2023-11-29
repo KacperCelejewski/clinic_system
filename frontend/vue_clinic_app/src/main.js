@@ -25,7 +25,7 @@ const router = createRouter({
         name: 'add',
       },
       {
-        path: '/edit-patien/:idt',
+        path: '/search-patient/:pesel/edit',
         component: EditPatient,
         name: 'edit',
       },

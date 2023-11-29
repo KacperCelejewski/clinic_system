@@ -38,6 +38,7 @@
               >E.g., Doe</small
             >
           </div>
+
           <div class="form-group mt-3">
             <button type="submit" class="btn btn-primary btn-lg btn-block">
               Submit
@@ -56,9 +57,10 @@ export default {
         loading: false,
         name: "",
         surrname: "",
+
         error: null,
         message: null,
-        id: this.$route.params.id,
+        pesel: this.$route.params.pesel,
       },
     };
   },
@@ -66,13 +68,14 @@ export default {
   methods: {
     getPatient: async function () {
       // the current patient id
-      let patientId = this.patient.id;
-      // start loading
+      let patientPesel = this.patient.pesel;
+      // start loading]
+      console.log(patientPesel);
       this.patient.loading = true;
       // get the patient
       try {
         let response = await this.$http.get(
-          `http://localhost:8080/api/patient/${patientId}`
+          `http://localhost:5000/search-patient/${patientPesel}`
         );
         this.patient.name = response.data.name;
         this.patient.surrname = response.data.surrname;
@@ -84,15 +87,17 @@ export default {
       }
     },
     checkForm: async function (e) {
-      // Custom validation
+      // Custom validation\
+      console.log(this.patient.pesel, "dd8d7u");
       if (this.patient.name && this.patient.surrname) {
         try {
           // send data to the server
           await this.$http.put(
-            `http://localhost:8080/patient/${this.patient.id}`,
+            `http://localhost:5000/search-patient/${this.patient.pesel}/edit`,
             {
               name: this.patient.name,
               surrname: this.patient.surrname,
+              pesel: this.patient.pesel,
             }
           );
 
@@ -121,8 +126,8 @@ export default {
       e.preventDefault();
     },
   },
-  created() {
-    // Called on load
+  mounted() {
+    // Called after the component has been fully mounted
     this.getPatient();
   },
 };

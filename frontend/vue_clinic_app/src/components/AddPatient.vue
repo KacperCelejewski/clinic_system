@@ -75,7 +75,7 @@ export default {
       if (this.patient.name && this.patient.surrname && this.patient.pesel) {
         try {
           // send data to the server
-          await this.$http.post("http://localhost:8082/add-patient", {
+          await this.$http.post("http://localhost:5000/add-patient", {
             name: this.patient.name,
             surrname: this.patient.surrname,
             pesel: this.patient.pesel,
