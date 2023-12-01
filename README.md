@@ -14,7 +14,7 @@ This is a web application built with Flask, Vue.js, Docker, and PostgreSQL. It i
 
    ```bash
    python -m venv venv
-   source venv/bin/activate
+   source venv/Scripts/activate
    ```
 
 3. Install the required dependencies:
