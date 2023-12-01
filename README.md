@@ -1,6 +1,6 @@
 # Clinic System
 
-This is a web application built with Flask, Vue.js, Docker, and PostgreSQL. It is designed to provide a system for searching, editing, and deleting patient records.
+This is a web application built with Flask, Vue.js, Docker,Docker-Compose and PostgreSQL. It is designed to provide a system for searching, editing, and deleting patient records.
 
 ## Installation
 
@@ -14,7 +14,7 @@ This is a web application built with Flask, Vue.js, Docker, and PostgreSQL. It i
 
    ```bash
    python -m venv venv
-   source venv/bin/activate
+   source venv/Scripts/activate
    ```
 
 3. Install the required dependencies:
@@ -30,14 +30,15 @@ This is a web application built with Flask, Vue.js, Docker, and PostgreSQL. It i
 
    DATABASE_URI = 'postgresql://username:password@localhost:5432/clinic_system'
    ```
+5.1 Install docker and follow the instructions: https://www.docker.com/get-started/ 
 
-5. Build and run the Docker containers from the top of the project:
+5.2 Build and run the Docker containers from the top of the project:
 
    ```bash
    docker-compose up --build -d
    ```
 
-6. Access the application in your browser at `http://localhost:5000`.
+6. Access the application in your browser at `http://localhost:8080`.
 
 ## Usage
 
