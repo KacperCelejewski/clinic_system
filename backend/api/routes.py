@@ -1,44 +1,23 @@
-from flask import Flask, request, jsonify, make_response, redirect, url_for
-from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS
+from flask import make_response, jsonify, request
+from .models import Patient
+from app.app import app, db
 from sqlalchemy.exc import IntegrityError
-import local_settings
-
-app = Flask(__name__)
-
-CORS(app)
-pg = local_settings.postgrsql
-db_uri = f"postgresql://{pg['pguser']}:{pg['pgpassword']}@{pg['pghost']}:{pg['pgport']}/{pg['pgdb']}"
-
-app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
-db = SQLAlchemy(app)
 
 
-class Patient(db.Model):
-    __tablename__ = "patients"
-    id = db.Column(db.Integer, primary_key=True)
-    pesel = db.Column(db.Integer)
-    name = db.Column(db.String(100), nullable=False)
-    surrname = db.Column(db.String(100), nullable=False)
-
-    def json(self):
-        return {
-            "id": self.id,
-            "pesel": self.pesel,
-            "name": self.name,
-            "surrname": self.surrname,
-        }
-
-
-@app.route("/")
-def test():
-    return make_response(jsonify({"message": "Works fine!"}))
-
-
-#! Limits for len of PESEL (sQL integer error)
 # create patient
 @app.route("/add-patient", methods=["POST"])
 def create_patient():
+    """
+    Create a new patient.
+
+    This function is responsible for creating a new patient in the clinic system.
+    It receives the patient data as a JSON object in the request body and adds the patient to the database.
+    If the patient with the same PESEL already exists, it returns a 400 error.
+    If any other error occurs, it returns a 500 error.
+
+    Returns:
+        A response object with a JSON message indicating the success or failure of the operation.
+    """
     try:
         data = request.get_json()
         new_patient = Patient(
@@ -63,6 +42,18 @@ def create_patient():
 # get patient
 @app.route("/search-patient/<int:pesel>", methods=["GET"])
 def get_patient(pesel):
+    """
+    Get patient information by their PESEL number.
+
+    Args:
+        pesel (int): The PESEL number of the patient.
+
+    Returns:
+        Response: The response containing the patient information in JSON format.
+
+    Raises:
+        Exception: If there is an error while retrieving the patient information.
+    """
     try:
         patient = Patient.query.filter_by(pesel=pesel).first()
         return make_response(jsonify({"patient": patient.json()}), 200)
@@ -73,14 +64,20 @@ def get_patient(pesel):
 # update patient
 @app.route("/search-patient/<int:pesel>/edit", methods=["PUT"])
 def update_patient(pesel):
+    """
+    Update a patient's information.
+
+    Args:
+        pesel (int): The PESEL number of the patient.
+
+    Returns:
+        Response: A JSON response indicating the result of the update operation.
+    """
     try:
         patient = Patient.query.filter_by(pesel=pesel).first()
         if patient:
             data = request.get_json()
-
-            patient.pesel = data["pesel"]
-            patient.name = data["name"]
-            patient.surrname = data["surrname"]
+            patient.update(data)
             db.session.commit()
             return make_response(jsonify({"message": "patient updated"}), 200)
         return make_response(jsonify({"message": "patient not found"}), 404)
@@ -91,6 +88,18 @@ def update_patient(pesel):
 # delete patient
 @app.route("/search-patient/<int:id>/delete", methods=["DELETE"])
 def delete_patient(id):
+    """
+    Delete a patient from the database.
+
+    Args:
+        id (int): The ID of the patient to be deleted.
+
+    Returns:
+        flask.Response: A JSON response indicating the result of the deletion operation.
+            - If the patient is found and successfully deleted, returns a response with status code 200 and message "patient deleted".
+            - If the patient is not found, returns a response with status code 404 and message "patient not found".
+            - If an exception occurs during the deletion operation, returns a response with status code 500 and message "deleting patient failed".
+    """
     try:
         patient = Patient.query.filter_by(id=id).first()
         if patient:
@@ -100,10 +109,3 @@ def delete_patient(id):
         return make_response(jsonify({"message": "patient not found"}), 404)
     except Exception:
         return make_response(jsonify({"message": "deleting patient failed"}), 500)
-
-
-with app.app_context():
-    db.create_all()
-with app.app_context():
-    if __name__ == "__main__":
-        app.run(port=5000, debug=True, use_reloader=False)
