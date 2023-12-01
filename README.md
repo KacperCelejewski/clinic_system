@@ -37,7 +37,7 @@ This is a web application built with Flask, Vue.js, Docker, and PostgreSQL. It i
    docker-compose up --build -d
    ```
 
-6. Access the application in your browser at `http://localhost:5000`.
+6. Access the application in your browser at `http://localhost:8080`.
 
 ## Usage
 
