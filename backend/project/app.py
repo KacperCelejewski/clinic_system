@@ -30,6 +30,11 @@ class Patient(db.Model):
         }
 
 
+@app.route("/")
+def test():
+    return make_response(jsonify({"message": "Works fine!"}))
+
+
 #! Limits for len of PESEL (sQL integer error)
 # create patient
 @app.route("/add-patient", methods=["POST"])
@@ -98,6 +103,7 @@ def delete_patient(id):
 
 
 with app.app_context():
+    db.create_all()
+with app.app_context():
     if __name__ == "__main__":
         app.run(port=5000, debug=True, use_reloader=False)
-        db.create_all()

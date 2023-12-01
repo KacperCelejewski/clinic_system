@@ -38,10 +38,9 @@
               >E.g., Doe</small
             >
           </div>
-
           <div class="form-group mt-3">
             <button type="submit" class="btn btn-primary btn-lg btn-block">
-              Submit
+              {{ patient.loading ? "Submitting..." : "Submit" }}
             </button>
           </div>
         </form>
@@ -49,6 +48,7 @@
     </div>
   </div>
 </template>
+
 <script>
 export default {
   data() {
@@ -57,7 +57,6 @@ export default {
         loading: false,
         name: "",
         surrname: "",
-
         error: null,
         message: null,
         pesel: this.$route.params.pesel,
@@ -66,32 +65,28 @@ export default {
   },
 
   methods: {
-    getPatient: async function () {
-      // the current patient id
-      let patientPesel = this.patient.pesel;
-      // start loading]
-      console.log(patientPesel);
+    async getPatient() {
+      const patientPesel = this.patient.pesel;
       this.patient.loading = true;
-      // get the patient
+
       try {
-        let response = await this.$http.get(
+        const response = await this.$http.get(
           `http://localhost:5000/search-patient/${patientPesel}`
         );
         this.patient.name = response.data.name;
         this.patient.surrname = response.data.surrname;
         this.patient.loading = false;
-        return;
       } catch (error) {
+        console.error("Error while fetching patient data:", error);
         this.patient.error = error.message || "An error occurred";
-        return;
       }
     },
-    checkForm: async function (e) {
-      // Custom validation\
-      console.log(this.patient.pesel, "dd8d7u");
+
+    async checkForm() {
       if (this.patient.name && this.patient.surrname) {
+        this.patient.loading = true;
+
         try {
-          // send data to the server
           await this.$http.put(
             `http://localhost:5000/search-patient/${this.patient.pesel}/edit`,
             {
@@ -101,33 +96,24 @@ export default {
             }
           );
 
-          // reset the fields
           this.patient.name = "";
           this.patient.surrname = "";
-
-          // set the message
           this.patient.message = "Patient edited successfully";
-
-          return;
         } catch (error) {
+          console.error("Error while editing patient:", error);
           this.patient.error = error.message || "An error occurred";
-          return;
+        } finally {
+          this.patient.loading = false;
         }
+      } else {
+        this.patient.error = !this.patient.name
+          ? "Name is required"
+          : "Surname is required";
       }
-      this.patient.error = null;
-      if (!this.patient.name) {
-        this.patient.error = "Name is required";
-        return;
-      }
-      if (!this.patient.surrname) {
-        this.patient.error = "Surname is required";
-        return;
-      }
-      e.preventDefault();
     },
   },
+
   mounted() {
-    // Called after the component has been fully mounted
     this.getPatient();
   },
 };
