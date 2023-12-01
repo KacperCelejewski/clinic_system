@@ -1,5 +1,5 @@
 backend/Pipfile.lock
 backend/Pipfile
-backend/project/local_settings.py
-backend/project/__pycache__
+backend/api/local_settings.py
+backend/api/__pycache__
 backend/__pycache__/
