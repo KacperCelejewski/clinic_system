@@ -3,3 +3,4 @@ backend/Pipfile
 backend/api/local_settings.py
 backend/api/__pycache__
 backend/__pycache__/
+clinic_system\.env
