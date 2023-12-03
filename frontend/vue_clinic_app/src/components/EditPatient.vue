@@ -50,6 +50,8 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   data() {
     return {
@@ -70,9 +72,16 @@ export default {
       this.patient.loading = true;
 
       try {
-        const response = await this.$http.get(
-          `http://localhost:5000/search-patient/${patientPesel}`
+        const response = await axios.get(
+          "http://localhost:5000/search-patient",
+          {
+            headers: {
+              "Content-Type": "application/json",
+              pesel: this.pesel,
+            },
+          }
         );
+
         this.patient.name = response.data.name;
         this.patient.surrname = response.data.surrname;
         this.patient.loading = false;
@@ -87,14 +96,11 @@ export default {
         this.patient.loading = true;
 
         try {
-          await this.$http.put(
-            `http://localhost:5000/search-patient/${this.patient.pesel}/edit`,
-            {
-              name: this.patient.name,
-              surrname: this.patient.surrname,
-              pesel: this.patient.pesel,
-            }
-          );
+          await this.$http.put(`http://localhost:5000/search-patient/edit`, {
+            name: this.patient.name,
+            surrname: this.patient.surrname,
+            pesel: this.patient.pesel,
+          });
 
           this.patient.name = "";
           this.patient.surrname = "";

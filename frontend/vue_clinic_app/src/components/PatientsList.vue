@@ -56,8 +56,14 @@ export default {
         }
 
         // Make the request with the pesel
-        const response = await this.$http.get(
-          `http://localhost:5000/search-patient/${this.pesel}`
+        const response = await axios.get(
+          "http://localhost:5000/search-patient",
+          {
+            headers: {
+              "Content-Type": "application/json",
+              pesel: this.pesel,
+            },
+          }
         );
 
         // Check if the response contains patient data
